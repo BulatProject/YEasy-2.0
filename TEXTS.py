@@ -21,8 +21,8 @@ class Errors(enum.Enum):
 
 class BanList(enum.Enum):
     SYSTEM_SYMBOLS = "(\s)?[\/\\:*?<>|\"'@#]"
-    TITLE_EXESSIVE_DATA = "(s\)?([\[\(]?(official|lyric(s)?)(\s)*(lyric(s)?)?(\s)*(music|hd|hq)?(\s)*(video|audio)?(\s)?(by.*)?[\]\)]?|\[cc\]|[\[\(](video|audio|hd|hq)(\s)?(by.*)?[\]\)]|[\[\(]?(music video|high quality)[\]\)]?)"
-    AUTHOR_EXESSIVE_DATA = "(s\)?(- topic|vevo|official|music)"
+    TITLE_EXESSIVE_DATA = "([\[\(]?(official|lyric(s)?)(\s)*(lyric(s)?)?(\s)*(music|hd|hq)?(\s)*(video|audio)?(\s)?(by.*)?[\]\)]?|\[cc\]|[\[\(](video|audio|hd|hq)(\s)?(by.*)?[\]\)]|[\[\(]?(music video|high quality)[\]\)]?)"
+    AUTHOR_EXESSIVE_DATA = "(- topic|vevo|official|music)"
 
 
 class Result(enum.Enum):
@@ -31,7 +31,7 @@ class Result(enum.Enum):
     LENGTH = 'Длина ссылки {} менее 131 символа'
     TITLES = 'Название композиции {} было успешно изменено'
     TAGS = 'Композиции {} были присвоены теги'
-    DOWNLOAD = 'Файл был успешно скачан'
+    DOWNLOAD = 'Файл {} был успешно скачан'
     SENT = 'Файл {} был успешно отправлен'
     DELETED = 'Файл {} был успешно удалён'
     MOVED = 'Файл {} был успешно перемещён'

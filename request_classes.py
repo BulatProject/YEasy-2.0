@@ -9,7 +9,7 @@ from TEXTS import Errors, MP3, Result
 class TrackRequestType(BaseRequestType):
     "Класс для комманды \"трек\""
 
-    def download(self) -> None:
+    def download(self) -> str:
         youtube_object = YouTube(self.url, on_progress_callback=on_progress)
 
         try:
@@ -20,21 +20,20 @@ class TrackRequestType(BaseRequestType):
                 self.title = youtube_object.title
 
             title_result = self.make_title()
-
-            mp3_file_name = MP3.format(self.file_name)
-
+            
             youtube_stream.download(mp3=True,
                                     output_path=self.user_id,
-                                    filename=mp3_file_name)
+                                    filename=self.file_name)
 
             tag_set_result = self.set_mp3_tags()
 
-            return title_result.join(['\n', tag_set_result])
+            return title_result + '\n' + self.file_name
 
         except Exception as ex:
             raise CustomException(
-                Errors.DOWNLOAD_FAILED.value.format('песню',self.url).join([' ', str(ex)])
-                )
+                Errors.DOWNLOAD_FAILED.value.format('песню', self.url)
+                + '\n'
+                + str(ex))
 
 
 class ListRequestType(BaseRequestType):

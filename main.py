@@ -1,8 +1,8 @@
-from os import listdir, path, getenv
+from os import listdir, getenv
+import os.path as path
 import logging
 import random
 
-from pytube import YouTube
 from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import filters, MessageHandler, ApplicationBuilder, CommandHandler, ContextTypes
@@ -66,7 +66,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return None
 
     logger.info(LogMessages.REQUEST_WAS_RECIEVED.value.format(message))
-    user_id = update.effective_chat.id
+    user_id = str(update.effective_chat.id)
 
     await context.bot.send_message(chat_id=user_id, text=ResponseMessages.REQUEST_RECIEVED.value)
     logger.info(RESPONSE.format(ResponseMessages.REQUEST_RECIEVED.value))
@@ -94,11 +94,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         # Подготовка к скачиванию и скачивание:
         logger.info('Скачивание начато')
         download_result = data_object.download()
-        logger.info(download_result.join(['\n', Result.DOWNLOAD.value]))
+        logger.info(Result.DOWNLOAD.value.format(download_result))
 
         # Отправка файла пользователю:
         logger.info('Отправка файла начата')
-        file_path = path(user_id, MP3.format(data_object.file_name))
+        file_path = path.join(user_id, MP3.format(data_object.file_name))
         await context.bot.send_document(chat_id=update.effective_chat.id, document=file_path)
         logger.info(Result.SENT.value.format(data_object.file_name))
 
@@ -118,8 +118,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 logger.info(Result.MOVED.value.format(data_object.file_name))
 
         except Exception as ex:
-            logger.info(f'Файл по ссылке {data_object.url} не был удалён или перемещён')
-            
+            logger.info(f'Файл по ссылке{data_object.url} не был удалён или перемещён')
+
 
 def main() -> None:
     application = ApplicationBuilder().token(TOKEN).build()

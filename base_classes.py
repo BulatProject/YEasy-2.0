@@ -73,20 +73,19 @@ class BaseRequestType():
         mp3_file_name = MP3.format(self.file_name)
 
         try:
-            base = eyed3.load(path(self.user_id, mp3_file_name))
+            base = eyed3.load(path.join(self.user_id, mp3_file_name))
 
             base.tag.title = self.title
             base.tag.artist = self.author
 
             base.tag.save()
-
             return Result.TAGS.value.format(self.file_name)
 
         except Exception as err:
-            return Errors.TAGS.value.format([' ', str(err)])
+            return Errors.TAGS.value.format(self.file_name, str(err))
 
     def delete_file(self) -> None:
-        remove(MP3.format(self.file_name))
+        remove(path.join(self.user_id, MP3.format(self.file_name)))
 
     def move_file(self) -> None:
         replace(MP3.format(self.file_name), path.join('Songs', MP3.format(self.file_name)))

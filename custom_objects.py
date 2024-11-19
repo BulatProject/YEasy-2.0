@@ -10,11 +10,11 @@ class MessageDataObject:
 
         if message_parts[-1].lower() != 'да':
             self.command_data: list = message_parts[1:]
-            self.delete_after_sending: bool = False
+            self.delete_after_sending: bool = True
 
         else:
             self.command_data: list = message_parts[1:-1]
-            self.delete_after_sending: bool = True
+            self.delete_after_sending: bool = False
 
 
 class CustomException(Exception):
