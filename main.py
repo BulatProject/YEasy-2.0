@@ -1,6 +1,5 @@
 from os import listdir, getenv
 import os.path as path
-import logging
 import random
 
 from dotenv import load_dotenv
@@ -8,7 +7,7 @@ from telegram import Update
 from telegram.ext import filters, MessageHandler, ApplicationBuilder, CommandHandler, ContextTypes
 
 from TEXTS import *
-from custom_objects import MessageDataObject, CustomException
+from custom_objects import MessageDataObject, CustomException, logger
 from request_classes import TrackRequestType, ListRequestType, VideoRequestType
 
 
@@ -21,9 +20,7 @@ REQUEST_TYPE: set = {
 load_dotenv()
 TOKEN = getenv("TOKEN")
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-logger = logging.getLogger("YEasy 2.0")
 logger.info("Logging started")
 
 RESPONSE = LogMessages.RESPONSE_WAS_SENT.value
@@ -60,30 +57,26 @@ async def random_meme(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = str(update.message.text)
-
-    if update is None:
+    if update.message is None:
         return None
 
-    logger.info(LogMessages.REQUEST_WAS_RECIEVED.value.format(message))
-    user_id = str(update.effective_chat.id)
-
-    await context.bot.send_message(chat_id=user_id, text=ResponseMessages.REQUEST_RECIEVED.value)
-    logger.info(RESPONSE.format(ResponseMessages.REQUEST_RECIEVED.value))
-
-
     try:
+        message = str(update.message.text)
+
+        logger.info(LogMessages.REQUEST_WAS_RECIEVED.value.format(message))
+        user_id = str(update.effective_chat.id)
+
+        await context.bot.send_message(chat_id=user_id, text=ResponseMessages.REQUEST_RECIEVED.value)
+        logger.info(RESPONSE.format(ResponseMessages.REQUEST_RECIEVED.value))
+
         # Обработка сообщения:
         message_parts = MessageDataObject(message)
         logger.info(Result.MESSAGE_PROCESSED.value)
 
-        command_type = message_parts.command_type
-        command_data = message_parts.command_data
-
         # Инициализация сообщения:
-        request_type = REQUEST_TYPE[command_type]
+        request_type = REQUEST_TYPE[message_parts.command_type]
 
-        data_object: TrackRequestType|ListRequestType|VideoRequestType = request_type(user_id, *command_data)
+        data_object: TrackRequestType|ListRequestType|VideoRequestType = request_type(user_id, *message_parts.command_data)
         logger.info(Result.DATA_STORED.value)
 
         # Проверка длинны ссылки:
@@ -93,19 +86,19 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
         # Подготовка к скачиванию и скачивание:
         logger.info('Скачивание начато')
-        download_result = data_object.download()
-        logger.info(Result.DOWNLOAD.value.format(download_result))
+        data_object.download()
+        logger.info(Result.DOWNLOAD.value.format(data_object.file_name))
 
         # Отправка файла пользователю:
+        file_path = path.join(user_id, data_object.file_type.format(data_object.file_name))
         logger.info('Отправка файла начата')
-        file_path = path.join(user_id, MP3.format(data_object.file_name))
         await context.bot.send_document(chat_id=update.effective_chat.id, document=file_path)
         logger.info(Result.SENT.value.format(data_object.file_name))
 
-    except CustomException as custom_exception:
-        logger.info(str(custom_exception))
+    except Exception as exception:
+        logger.error(str(exception))
         await context.bot.send_message(chat_id=user_id, text=f'Произошла ошибка при скачивании {data_object.url}')
-        logger.info(RESPONSE.format(str(custom_exception)))
+        logger.info(RESPONSE.format(f'Произошла ошибка при скачивании {data_object.url}'))
 
     finally:
         # Удаление или перемещение файла после отправки:
@@ -118,7 +111,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 logger.info(Result.MOVED.value.format(data_object.file_name))
 
         except Exception as ex:
-            logger.info(f'Файл по ссылке{data_object.url} не был удалён или перемещён')
+            logger.error(ex)
+            logger.error(f'Файл по ссылке {data_object.url} не был удалён или перемещён')
 
 
 def main() -> None:

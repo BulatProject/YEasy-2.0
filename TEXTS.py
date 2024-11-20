@@ -20,8 +20,8 @@ class Errors(enum.Enum):
 
 
 class BanList(enum.Enum):
-    SYSTEM_SYMBOLS = "(\s)?[\/\\:*?<>|\"'@#]"
-    TITLE_EXESSIVE_DATA = "([\[\(]?(official|lyric(s)?)(\s)*(lyric(s)?)?(\s)*(music|hd|hq)?(\s)*(video|audio)?(\s)?(by.*)?[\]\)]?|\[cc\]|[\[\(](video|audio|hd|hq)(\s)?(by.*)?[\]\)]|[\[\(]?(music video|high quality)[\]\)]?)"
+    SYSTEM_SYMBOLS = "(\s)?[\/\\:*?<>|\"'@#&%^]"
+    TITLE_EXESSIVE_DATA = "([\[\(]?(official|lyric(s)?)(\s)*(lyric(s)?)?(\s)*(music|hd|hq)?(\s)*(video|audio)?(\s)?(by.*)?[\]\)]?|\[cc\]|[\[\(](video|audio|hd|hq)(\s)?(by.*)?[\]\)]|[\[\(]?(music video|high quality|original Mix)[\]\)]?)"
     AUTHOR_EXESSIVE_DATA = "(- topic|vevo|official|music)"
 
 
@@ -46,6 +46,15 @@ class LogMessages(enum.Enum):
     RESPONSE_WAS_SENT = "Сообщение \"{}\" было отправлено пользователю"
 
 
+class MediaTypes(enum.Enum):
+    M4A = r'{}.m4a'
+    MP3 = r"{}.mp3"
+
+
+class SubprocessCommands(enum.Enum):
+    CONVERSION = r"ffmpeg -i {}.m4a -c:v copy -c:a libmp3lame -q:a 4 {}.mp3"
+
+
 SYSTEM_SYMBOLS = ('/', '\\', ':', '*', '?', '<', '>', '|', '"', "'", '@', '#')
 BAN_LIST = ('(Official Video)', '(Official Music Video)', '(Official Audio)', '(Music Video)', 
     '(OFFICIAL VIDEO)', '(OFFICIAL MUSIC VIDEO)', '(OFFICIAL AUDIO)', '(MUSIC VIDEO)',
@@ -63,7 +72,9 @@ BAN_LIST = ('(Official Video)', '(Official Music Video)', '(Official Audio)', '(
     '(hd)', '(hq)', '[hd]', '[hq]',
     '(HD)', '(HQ)', '[HD]', '[HQ]', '[CC]')
 
-MP3 = r"{}.mp3"
+
+
+
 
 START = 'Перед использованием ОБЯЗАТЕЛЬНО прочтите описание и инструкцию по использованию бота, введя: "/help" и "/info".'
 HELP = '''\
